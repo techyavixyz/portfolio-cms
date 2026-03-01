@@ -2,11 +2,11 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BrowserRouter, Routes, Route, Link, useParams, useLocation } from 'react-router-dom';
 import Markdown from 'react-markdown';
-import { 
-  Github, 
-  Linkedin, 
-  Mail, 
-  ExternalLink, 
+import {
+  Github,
+  Linkedin,
+  Mail,
+  ExternalLink,
   Twitter,
   Facebook,
   Link as LinkIcon,
@@ -21,18 +21,24 @@ import {
 import { Settings, Project, Skill, Post } from './types';
 import { ResponsiveImage } from './components/ResponsiveImage';
 import { Input } from './components/Input';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const Admin = lazy(() => import('./Admin'));
+const Login = lazy(() => import('./pages/Login'));
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<div className="min-h-screen bg-stone-50 flex items-center justify-center"><div className="w-8 h-8 border-2 border-stone-900 border-t-transparent rounded-full animate-spin" /></div>}>
-        <Routes>
-          <Route path="/admin/*" element={<Admin />} />
-          <Route path="/*" element={<MainApp />} />
-        </Routes>
-      </Suspense>
+      <AuthProvider>
+        <Suspense fallback={<div className="min-h-screen bg-stone-50 flex items-center justify-center"><div className="w-8 h-8 border-2 border-stone-900 border-t-transparent rounded-full animate-spin" /></div>}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/admin/*" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/*" element={<MainApp />} />
+          </Routes>
+        </Suspense>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

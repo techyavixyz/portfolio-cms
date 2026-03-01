@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Reorder } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleGenAI } from "@google/genai";
-import { 
-  Github, 
-  Linkedin, 
-  Mail, 
-  ExternalLink, 
-  Plus, 
-  Trash2, 
-  Settings as SettingsIcon, 
+import {
+  Github,
+  Linkedin,
+  Mail,
+  ExternalLink,
+  Plus,
+  Trash2,
+  Settings as SettingsIcon,
   X,
   Code,
   User,
@@ -21,15 +21,19 @@ import {
   BookOpen,
   ArrowLeft,
   Edit,
-  Sparkles
+  Sparkles,
+  LogOut
 } from 'lucide-react';
 import { Settings, Project, Skill, Post } from './types';
 import { ResponsiveImage } from './components/ResponsiveImage';
 import { Modal } from './components/Modal';
 import { Input } from './components/Input';
 import { MarkdownEditor } from './components/MarkdownEditor';
+import { useAuth } from './contexts/AuthContext';
 
 export default function Admin() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<{ settings: Settings; projects: Project[]; skills: Skill[]; posts: Post[] } | null>(null);
   const [isEditingSettings, setIsEditingSettings] = useState(false);
   const [showAddProject, setShowAddProject] = useState(false);
@@ -279,6 +283,17 @@ export default function Admin() {
     fetchData();
   };
 
+  const handleSignOut = async () => {
+    if (!confirm('Are you sure you want to sign out?')) return;
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      alert('Failed to sign out. Please try again.');
+    }
+  };
+
   if (loading || !data) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
@@ -291,10 +306,25 @@ export default function Admin() {
     <div className="min-h-screen bg-stone-50 text-stone-900 font-sans p-12">
       <div className="max-w-5xl mx-auto space-y-12">
         <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold tracking-tight">Portfolio CMS</h1>
-          <Link to="/" className="text-sm font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2">
-            <ArrowLeft size={16} /> Back to Site
-          </Link>
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight">Portfolio CMS</h1>
+            {user && (
+              <p className="text-sm text-stone-500 mt-2">
+                Signed in as <span className="font-medium text-stone-700">{user.email}</span>
+              </p>
+            )}
+          </div>
+          <div className="flex gap-4">
+            <Link to="/" className="text-sm font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2">
+              <ArrowLeft size={16} /> Back to Site
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="text-sm font-bold uppercase tracking-widest text-stone-400 hover:text-red-600 transition-colors flex items-center gap-2"
+            >
+              <LogOut size={16} /> Sign Out
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
